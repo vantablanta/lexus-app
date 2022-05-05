@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request
 from config import config_options
 from flask_sqlalchemy import SQLAlchemy
-
+from mail import send_mail
 app = Flask(__name__)
 app.config.from_object(config_options['dev'])
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -44,6 +44,7 @@ def submit():
         data = Feedback(customer, dealer, rating, comments)
         db.session.add(data)
         db.session.commit()
+        send_mail(customer, rating, dealer, comments)
         return render_template('success.html')
     return render_template('index.html', message="You have already submitted feedback")
 
