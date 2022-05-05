@@ -1,13 +1,21 @@
 from flask import Flask, render_template, request
-from config import config_options
 from flask_sqlalchemy import SQLAlchemy
 from mail import send_mail
+
+# Configs 
 app = Flask(__name__)
-app.config.from_object(config_options['dev'])
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db = SQLAlchemy(app)
+ENV = 'dev'
+if ENV  == "dev":
+    app.debug = True
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://michelle:admin@localhost/lexus'
+else:
+    app.debug = False
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgres://xzmoqaymzftpgf:7355ae2a45c9e4aaeb1d39c2205286706209f236164f30f4c8195d6207b93b86@ec2-3-229-11-55.compute-1.amazonaws.com:5432/d86g23t3tnnd05'
 
+# database 
+db = SQLAlchemy(app)
 class Feedback(db.Model):
     """"""
     __tablename__='feedback'
@@ -22,7 +30,6 @@ class Feedback(db.Model):
         self.dealer = dealer
         self.comments = comments
         self.rating = rating
-
 
 #  viewws 
 @app.route('/')
@@ -48,6 +55,6 @@ def submit():
         return render_template('success.html')
     return render_template('index.html', message="You have already submitted feedback")
 
-
+# running
 if __name__ == '__main__':
     app.run()
